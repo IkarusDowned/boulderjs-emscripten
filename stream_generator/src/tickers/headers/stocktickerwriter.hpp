@@ -2,12 +2,11 @@
 #include <string>
 #include <cstring>
 #include <cstdint>
-#include "interfaces/ipacketwriter.hpp"
-#include "interfaces/itickerwriter.hpp"
+#include "packet/interfaces/ipacketwriter.hpp"
 
 uint16_t endianTest = 0x1;
 
-class StockTickerWriter : public ITickerWriter
+class StockTickerWriter
 {
 private:
     const std::string symbol;
@@ -16,22 +15,22 @@ private:
     const bool isLittleEndian;
 
 public:
-    StockTickerWriter(const std::string &symbol, IPacketWriter &packetWriter) : symbol(symbol),
-                                                                                packetWriter(packetWriter),
-                                                                                isLittleEndian(*reinterpret_cast<uint8_t *>(&endianTest) == 0x1)
+    explicit StockTickerWriter(const std::string &symbol, IPacketWriter &packetWriter) : symbol(symbol),
+                                                                                         packetWriter(packetWriter),
+                                                                                         isLittleEndian(*reinterpret_cast<uint8_t *>(&endianTest) == 0x1)
     {
-        if(this->symbol.length() > 2) 
+        if (this->symbol.length() > 2)
         {
-            throw std::string("Ticker Symbol must bw 2 characeters");
+            throw std::string("Ticker Symbol must be 2 characeters");
         }
     }
 
-    template<typename T> void write(T price)
+    template <typename T>
+    void write(T price)
     {
         const size_t buffSize = sizeof(T);
         char buffer[buffSize];
         std::memcpy(buffer, &price, buffSize);
-        std::cout << buffer << std::endl;
         if (!isLittleEndian)
         {
             int left = 0;

@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include "interfaces/ipacketwriter.hpp"
-#include "interfaces/istreamgenerator.hpp"
+#include "packet/interfaces/ipacketwriter.hpp"
+#include "io/interfaces/istreamgenerator.hpp"
 
 class AsciiPacketWriter : public IPacketWriter
 {
@@ -11,7 +11,7 @@ private:
     const char PACKET_END = (char)3;
 
 public:
-    AsciiPacketWriter(IStreamGenerator &streamGenerator) : streamGenerator(streamGenerator)
+    explicit AsciiPacketWriter(IStreamGenerator &streamGenerator) : streamGenerator(streamGenerator)
     {
     }
 

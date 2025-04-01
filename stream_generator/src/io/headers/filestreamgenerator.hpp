@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "interfaces/istreamgenerator.hpp"
+#include "io/interfaces/istreamgenerator.hpp"
 
 class FileStreamGenerator : public IStreamGenerator
 {
@@ -10,10 +10,9 @@ class FileStreamGenerator : public IStreamGenerator
     std::ofstream outputFile;
 
 public:
-    FileStreamGenerator(const std::string &filePath)
+explicit FileStreamGenerator(const std::string &filePath)
         : filePath(filePath)
     {
-        std::cout << "Creating File Stream Object" << std::endl;
     }
 
     virtual bool initialize()
@@ -25,7 +24,6 @@ public:
     virtual ~FileStreamGenerator()
     {
         outputFile.close();
-        std::cout << "Destroying File Stream Object" << std::endl;
     }
 
     virtual void write(const char *buffer, unsigned int len)
