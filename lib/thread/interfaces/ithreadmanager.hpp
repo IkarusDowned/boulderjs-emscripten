@@ -5,8 +5,7 @@
 class IThreadManager
 {
 public:
-    
-    virtual ~IThreadManager()
+        virtual ~IThreadManager()
     {
     }
 
