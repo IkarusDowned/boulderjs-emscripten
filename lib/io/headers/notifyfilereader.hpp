@@ -29,7 +29,7 @@ private:
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
-        // Block indefinitely until file is modified
+        // Block until file is modified or timeout is hit
         int selectResult = select(inotifyFd + 1, &fds, nullptr, nullptr, &timeout);
         if (selectResult == -1 && errno != EINTR)
         {

@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     try
     {
         multiReader = std::make_unique<MultiReaderManager>(filepaths);
+        auto start = std::chrono::steady_clock::now();
         multiReader->start();
         while (multiReader->isRunning())
         {
@@ -50,6 +51,9 @@ int main(int argc, char *argv[])
             if (packet == "EOD")
             {
                 //std::cout << "Finished!" << std::endl;
+                auto end = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+                std::cout << duration << std::endl;
                 multiReader->stop();
                 return 0;
             }
