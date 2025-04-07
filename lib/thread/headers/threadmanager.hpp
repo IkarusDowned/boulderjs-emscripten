@@ -23,28 +23,31 @@ public:
 
     void requestStop()
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads) 
         {
-            (*itr)->requestStop();
+            thread->requestStop();
         }
+        
     }
 
     void start()
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads) 
         {
-            if ((*itr)->initialize(*this))
+            if (thread->initialize(*this))
             {
-                (*itr)->run();
+                thread->run();
             }
         }
+        
     }
 
     void wait()
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads)
         {
-            (*itr)->join();
+            thread->join();
         }
+        
     }
 };

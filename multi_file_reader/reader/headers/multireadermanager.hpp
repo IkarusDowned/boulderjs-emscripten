@@ -1,13 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <stack>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
-#include <memory>
 #include <atomic>
-#include <cstdint>
 #include "thread/headers/threadmanager.hpp"
 #include "thread/interfaces/ithread.hpp"
 #include "io/headers/notifyfilereader.hpp"
