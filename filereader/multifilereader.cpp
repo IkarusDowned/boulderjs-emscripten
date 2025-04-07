@@ -38,16 +38,16 @@ void ReaderThread::run()
 
 void ReaderThread::join()
 {
-    thread.join();
+    if (thread.joinable())
+    {
+        thread.join();
+    }
 }
 
 void ReaderThread::requestStop()
 {
     isStopRequested = true;
-    if (thread.joinable())
-    {
-        thread.join();
-    }
+    
 }
 
 void MultifileReader::createThreads(const std::vector<std::string> &filePaths)

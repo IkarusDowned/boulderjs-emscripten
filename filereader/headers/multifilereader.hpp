@@ -28,11 +28,11 @@ class ReaderThread : public IThread
 public:
     explicit ReaderThread(const std::string &filePath, MultifileReader &readerManager);
     virtual ~ReaderThread();
-    virtual int initialize(const IThreadManager &threadManager);
-    virtual void run();
+    virtual int initialize(const IThreadManager &threadManager) override;
+    virtual void run() override;
 
-    virtual void join();
-    virtual void requestStop();
+    virtual void join() override;
+    virtual void requestStop() override;
 };
 
 class MultifileReader

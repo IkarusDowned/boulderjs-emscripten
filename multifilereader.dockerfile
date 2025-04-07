@@ -10,7 +10,7 @@ COPY ./filereader/. /usr/filereader/
 WORKDIR /usr/filereader
 # uncomment this to get maximum performance gains out of C++
 # RUN g++  -O3 -march=native -fomit-frame-pointer -std=c++20 -o multifilereader \
-RUN g++ -std=c++20 -o multifilereader \
+RUN g++ -O3 -std=c++20 -o multifilereader \
     -I /usr/include/ticker/lib \
     -I /usr/filereader/reader/headers \
     main.cpp multifilereader.cpp -pthread

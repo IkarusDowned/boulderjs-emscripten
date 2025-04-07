@@ -21,7 +21,7 @@ public:
     {
     }
 
-    void requestStop()
+    void requestStop() override
     {
         for(auto thread : threads) 
         {
@@ -30,7 +30,7 @@ public:
         
     }
 
-    void start()
+    void start() override
     {
         for(auto thread : threads) 
         {
@@ -42,7 +42,7 @@ public:
         
     }
 
-    void wait()
+    void wait() override
     {
         for(auto thread : threads)
         {

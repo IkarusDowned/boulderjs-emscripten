@@ -55,7 +55,7 @@ public:
     explicit AsciiPacketReader(IStreamReader &streamReader) : streamReader(streamReader) {}
     virtual ~AsciiPacketReader() {}
 
-    virtual int readPacket(std::vector<char> &outPacket)
+    virtual int readPacket(std::vector<char> &outPacket) override
     {
         // attempt to read from the existing buffer
         int bytesRead = getPacketFromExistingBuffer(outPacket);
