@@ -13,7 +13,7 @@ private:
     std::vector<IThread *> threads;
 
 public:
-    explicit ThreadManager(const std::vector<IThread *> threads) : threads(threads) // note: threads is a shall copy - we are only copying the references
+    explicit ThreadManager(const std::vector<IThread *> &threads) : threads(threads)
     {
     }
 
