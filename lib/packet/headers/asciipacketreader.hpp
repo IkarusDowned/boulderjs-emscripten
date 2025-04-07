@@ -28,6 +28,10 @@ private:
         const int endOfAPacket = getIndexOfEndOfPacket();
         if (endOfAPacket > readOffset)
         {
+            if (packetBuffer[readOffset] != PACKET_START) {
+                ++readOffset;
+                return 0;
+            }
             const int packetStart = readOffset + 1;
             const int packetEnd = endOfAPacket;
             if (packetEnd > packetBuffer.size())
@@ -54,8 +58,11 @@ private:
 public:
     explicit AsciiPacketReader(IStreamReader &streamReader) : streamReader(streamReader) {}
     virtual ~AsciiPacketReader() {}
-
-    virtual int readPacket(std::vector<char> &outPacket)
+    virtual int initialize() override
+    {
+        return streamReader.initialize();
+    }
+    virtual int readPacket(std::vector<char> &outPacket) override
     {
         // attempt to read from the existing buffer
         int bytesRead = getPacketFromExistingBuffer(outPacket);
@@ -64,7 +71,6 @@ public:
         bytesRead = streamReader.readBytes(); // see if there is any new data in the buffer
         auto rawBytesIterator = streamReader.getByteBuffer().begin();
         packetBuffer.insert(packetBuffer.end(), rawBytesIterator, rawBytesIterator + bytesRead);
-
         return getPacketFromExistingBuffer(outPacket); // re-fetch to see if there is a new packet
     }
 };

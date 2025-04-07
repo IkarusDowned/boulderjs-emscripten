@@ -16,26 +16,26 @@ private:
 public:
     FileStreamReader(const std::string &filepath) : filepath(filepath), buffer(maxReadAmount) {}
 
-    virtual int initialize()
+    virtual int initialize() override
     {
         infileStream.open(filepath, std::ios::binary);
         return infileStream.is_open();
     }
 
-    virtual int readBytes()
+    virtual int readBytes() override
     {
-        infileStream.read(buffer.data(), buffer.size());
-        int count = infileStream.gcount();
-
-        if (count == 0 && infileStream.eof())
+        if (!infileStream.good())
         {
+            // Re-seek to current to clear EOF
             infileStream.clear();
+            infileStream.seekg(0, std::ios::cur);
         }
 
-        return count;
+        infileStream.read(buffer.data(), buffer.size());
+        return infileStream.gcount();
     }
 
-    virtual const std::vector<char> &getByteBuffer()
+    virtual const std::vector<char> &getByteBuffer() override
     {
         return this->buffer;
     }

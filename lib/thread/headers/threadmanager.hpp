@@ -21,30 +21,30 @@ public:
     {
     }
 
-    void requestStop()
+    void requestStop() override
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads) 
         {
-            (*itr)->requestStop();
+            thread->requestStop();
         }
+        
     }
 
-    void start()
+    void start() override
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads) 
         {
-            if ((*itr)->initialize(*this))
-            {
-                (*itr)->run();
-            }
+            thread->run();
         }
+        
     }
 
-    void wait()
+    void wait() override
     {
-        for (auto itr = this->threads.begin(); itr != this->threads.end(); ++itr)
+        for(auto thread : threads)
         {
-            (*itr)->join();
+            thread->join();
         }
+        
     }
 };
