@@ -7,25 +7,26 @@
 #include <atomic>
 #include "thread/headers/threadmanager.hpp"
 #include "thread/interfaces/ithread.hpp"
-#include "io/headers/notifyfilereader.hpp"
+#include "io/headers/filestreamreader.hpp"
 #include "packet/headers/asciipacketreader.hpp"
 
 const int MAX_PACKET_SIZE = 1000;
 
-class MultiReaderManager;
+class MultifileReader;
 
 class ReaderThread : public IThread
 {
 
-    std::jthread thread;
-    NotifyFileReader reader;
+    std::thread thread;
+    std::atomic<bool> isStopRequested = false;
+    FileStreamReader reader;
     AsciiPacketReader packetReader;
-    MultiReaderManager &readerManager;
+    MultifileReader &readerManager;
 
     std::vector<char> dataBuffer;
 
 public:
-    explicit ReaderThread(const std::string &filePath, MultiReaderManager &readerManager);
+    explicit ReaderThread(const std::string &filePath, MultifileReader &readerManager);
     virtual ~ReaderThread();
     virtual int initialize(const IThreadManager &threadManager);
     virtual void run();
@@ -34,7 +35,7 @@ public:
     virtual void requestStop();
 };
 
-class MultiReaderManager
+class MultifileReader
 {
 
 private:
@@ -49,8 +50,8 @@ private:
     void createThreads(const std::vector<std::string> &filePaths);
 
 public:
-    explicit MultiReaderManager(const std::vector<std::string> &filePaths);
-    ~MultiReaderManager();
+    explicit MultifileReader(const std::vector<std::string> &filePaths);
+    ~MultifileReader();
 
     void stop();
     void start();

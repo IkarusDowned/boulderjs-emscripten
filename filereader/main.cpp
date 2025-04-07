@@ -6,9 +6,9 @@
 #include <vector>
 #include <memory>
 #include <argparse/argparse.hpp>
-#include "reader/headers/multireadermanager.hpp"
+#include "headers/multifilereader.hpp"
 
-std::unique_ptr<MultiReaderManager> multiReader;
+std::unique_ptr<MultifileReader> multiReader;
 
 static void handleSignal(int signal)
 {
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     filepaths.push_back(filepath);
     try
     {
-        multiReader = std::make_unique<MultiReaderManager>(filepaths);
+        multiReader = std::make_unique<MultifileReader>(filepaths);
         auto start = std::chrono::steady_clock::now();
         multiReader->start();
         while (multiReader->isRunning())

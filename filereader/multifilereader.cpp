@@ -1,4 +1,4 @@
-#include "headers/multireadermanager.hpp"
+#include "headers/multifilereader.hpp"
 #include <string>
 #include <vector>
 #include <stack>
@@ -7,10 +7,10 @@
 #include <thread>
 #include "thread/headers/threadmanager.hpp"
 #include "thread/interfaces/ithread.hpp"
-#include "io/headers/notifyfilereader.hpp"
+#include "io/headers/filestreamreader.hpp"
 #include "packet/headers/asciipacketreader.hpp"
 
-ReaderThread::ReaderThread(const std::string &filePath, MultiReaderManager &readerManager) : dataBuffer(MAX_PACKET_SIZE), readerManager(readerManager), reader(filePath), packetReader(reader)
+ReaderThread::ReaderThread(const std::string &filePath, MultifileReader &readerManager) : dataBuffer(MAX_PACKET_SIZE), readerManager(readerManager), reader(filePath), packetReader(reader)
 {
 }
 
@@ -26,9 +26,9 @@ int ReaderThread::initialize(const IThreadManager &threadManager)
 void ReaderThread::run()
 {
 
-    thread = std::jthread([this](std::stop_token st)
-                          {
-            while (!st.stop_requested())
+    thread = std::thread([this]()
+                         {
+            while (!isStopRequested)
             {
                 packetReader.readPacket(dataBuffer);
                 std::string packet(dataBuffer.begin(), dataBuffer.end());
@@ -43,10 +43,14 @@ void ReaderThread::join()
 
 void ReaderThread::requestStop()
 {
-    thread.request_stop();
+    isStopRequested = true;
+    if (thread.joinable())
+    {
+        thread.join();
+    }
 }
 
-void MultiReaderManager::createThreads(const std::vector<std::string> &filePaths)
+void MultifileReader::createThreads(const std::vector<std::string> &filePaths)
 {
     for (auto filePath : filePaths)
     {
@@ -55,7 +59,7 @@ void MultiReaderManager::createThreads(const std::vector<std::string> &filePaths
     }
 }
 
-MultiReaderManager::MultiReaderManager(const std::vector<std::string> &filePaths) : packetsBuffer(), running(true)
+MultifileReader::MultifileReader(const std::vector<std::string> &filePaths) : packetsBuffer(), running(true)
 {
     readOffset = 0;
     createThreads(filePaths);
@@ -67,35 +71,35 @@ MultiReaderManager::MultiReaderManager(const std::vector<std::string> &filePaths
     threadManager = std::make_unique<ThreadManager>(rawThreads);
 }
 
-MultiReaderManager::~MultiReaderManager()
+MultifileReader::~MultifileReader()
 {
 }
 
-bool MultiReaderManager::isRunning()
+bool MultifileReader::isRunning()
 {
     return running;
 }
 
-void MultiReaderManager::stop()
+void MultifileReader::stop()
 {
     running = false;
     threadManager->requestStop();
     threadManager->wait();
 }
 
-void MultiReaderManager::start()
+void MultifileReader::start()
 {
     threadManager->start();
 }
 
-void MultiReaderManager::producePacket(std::string packet)
+void MultifileReader::producePacket(std::string packet)
 {
     std::unique_lock<std::mutex> lock(mutex);
     packetsBuffer.push_back(packet);
     condition.notify_all();
 }
 
-std::string MultiReaderManager::consumePacket()
+std::string MultifileReader::consumePacket()
 {
     std::unique_lock<std::mutex> lock(mutex);
     condition.wait(lock, [this]() -> bool
