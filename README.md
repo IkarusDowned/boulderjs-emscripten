@@ -6,7 +6,7 @@
 ### Build the Emscripten JS biding
 `docker pull emscripten/emsdk`
 then
-`docker run --rm -v $(pwd):/src -w /src emscripten/emsdk   em++ -v filereader/multifilereader.cpp filereader/bindings.cpp   -o build/multifilereader.js   -I filereader/headers   -I lib   -s USE_PTHREADS=1   -s PTHREAD_POOL_SIZE=4   -s MODULARIZE=1   -s EXPORT_NAME="createMultiReaderModule"   -s ALLOW_MEMORY_GROWTH=1   -std=c++20   -O3   -pthread   --bind`
+`docker run --rm -v $(pwd):/src -w /src emscripten/emsdk   em++ -v filereader/multifilereader.cpp filereader/bindings.cpp -o build/multifilereader.js -I filereader/headers -I lib -s EXPORTED_RUNTIME_METHODS=['FS','NODEFS'] -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 -s MODULARIZE=1 -s EXPORT_NAME="createMultiReaderModule" -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -std=c++20 -O3 -pthread --bind -lnodefs.js`
 
 Note: on windows add `MSYS_NO_PATHCONV=1` before the docker command. so it looks like: `MSYS_NO_PATHCONV=1 docker run ...`
 
