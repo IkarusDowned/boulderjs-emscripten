@@ -62,7 +62,7 @@ async function main() {
                     awaitingEod -= 1;
                     if (awaitingEod <= 0) {
                         const elapsed = Date.now() - start;
-                        console.log(`${elapsed}ms`);
+                        console.log(`${elapsed}`);
                         reader.stop();
                         process.exit(0);
                     }
@@ -82,13 +82,7 @@ async function main() {
 
     poll();
 
-    process.on('SIGINT', () => {
-        if (reader) {
-            reader.stop();
-
-        }
-        process.exit(0);
-    });
+    
 
 }
 
