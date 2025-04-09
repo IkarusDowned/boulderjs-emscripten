@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include <condition_variable>
 #include <thread>
 #include <atomic>
 #include <queue>
@@ -43,11 +42,7 @@ private:
     std::unique_ptr<ThreadManager> threadManager;
     std::vector<std::unique_ptr<IThread>> threads;
     std::mutex mutex;
-    std::condition_variable condition;
-    //std::vector<std::string> packetsBuffer;
     std::queue<std::string> packetsBuffer;
-    //int readOffset;
-    std::atomic<int> pendingPackets;
     std::atomic<bool> running;
 
     void createThreads(const std::vector<std::string> &filePaths);
@@ -60,6 +55,5 @@ public:
     void start();
     bool isRunning();
     void producePacket(std::string packet);
-    int getPendingPacketCount() const;
     std::string consumePacket();
 };

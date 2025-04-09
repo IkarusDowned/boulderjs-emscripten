@@ -94,34 +94,20 @@ void MultifileReader::start()
     threadManager->start();
 }
 
-int MultifileReader::getPendingPacketCount() const
-{
-    return pendingPackets.load();
-}
-
 
 void MultifileReader::producePacket(std::string packet)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    ++pendingPackets;
     packetsBuffer.push(std::move(packet));
-    //condition.notify_all();
 }
 
 std::string MultifileReader::consumePacket()
 {
     std::unique_lock<std::mutex> lock(mutex);
-    //condition.wait(lock, [this]() -> bool { 
-    //                                        return !packetsBuffer.empty();
-    //});
-    if(!pendingPackets)
-    {
-        return "";  //this should not hit as we should be checking the pendingPackets count and we assume there is 1 consumer
+    if (packetsBuffer.empty()) {
+        return "";
     }
     std::string aPacket = std::move(packetsBuffer.front());
     packetsBuffer.pop();
-    --pendingPackets;
-    //if(pendingPackets % 100000 == 0)
-    //    std::cout << pendingPackets << std::endl;
     return aPacket;
 }

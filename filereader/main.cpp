@@ -53,25 +53,22 @@ int main(int argc, char *argv[])
         multiReader->start();
         while (multiReader->isRunning())
         {
-            if (multiReader->getPendingPacketCount())
+
+            std::string packet = multiReader->consumePacket();
+            // std::cout << "Reading..." << packet << std::endl;
+            if (packet.find("EOD") != std::string::npos)
             {
 
-                std::string packet = multiReader->consumePacket();
-                //std::cout << "Reading..." << packet << std::endl;
-                if (packet.find("EOD") != std::string::npos)
+                --numThreads;
+                std::cout << "Got EOD. " << numThreads << "Remaining..." << std::endl;
+                if (numThreads <= 0)
                 {
-
-                    --numThreads;
-                    std::cout << "Got EOD. " << numThreads << "Remaining..." << std::endl;
-                    if (numThreads <= 0)
-                    {
-                        // std::cout << "Finished!" << std::endl;
-                        auto end = std::chrono::steady_clock::now();
-                        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-                        std::cout << duration << std::endl;
-                        multiReader->stop();
-                        return 0;
-                    }
+                    // std::cout << "Finished!" << std::endl;
+                    auto end = std::chrono::steady_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+                    std::cout << duration << std::endl;
+                    multiReader->stop();
+                    return 0;
                 }
             }
         }

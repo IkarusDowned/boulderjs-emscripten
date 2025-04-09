@@ -53,37 +53,35 @@ async function main() {
     reader.start();
     const poll = () => {
         try {
-            if (reader.getPendingPacketCount() > 0) {
 
-                const packet = reader.consumePacket();
-                if (packet) {
 
-                    if (packet.includes('EOD')) {
-                        awaitingEod -= 1;
-                        if (awaitingEod <= 0) {
-                            const elapsed = Date.now() - start;
-                            console.log(`${elapsed}ms`);
-                            reader.stop();
-                            process.exit(0);
-                        }
+            const packet = reader.consumePacket();
+            if (packet && packet !== "") {
 
+                if (packet.includes('EOD')) {
+                    awaitingEod -= 1;
+                    if (awaitingEod <= 0) {
+                        const elapsed = Date.now() - start;
+                        console.log(`${elapsed}ms`);
+                        reader.stop();
+                        process.exit(0);
                     }
-                    setImmediate(poll); //immediately check if there is a new packet
-                    //setTimeout(poll, );
-                    return;
+
                 }
+                setImmediate(poll); //immediately check if there is a new packet
+                return;
             }
+
         } catch (e) {
             //this should never be reached!
             console.log(e)
             process.exit(1);
         }
-        //console.log("timeout from no read...");
         setTimeout(poll, 5);
     };
 
     poll();
-    
+
     process.on('SIGINT', () => {
         if (reader) {
             reader.stop();
