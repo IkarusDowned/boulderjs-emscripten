@@ -56,11 +56,9 @@ async function main() {
             if (reader.getPendingPacketCount() > 0) {
 
                 const packet = reader.consumePacket();
-                console.log(packet);
                 if (packet) {
 
-                    if (packet === 'EOD') {
-                        console.log(packet);
+                    if (packet.includes('EOD')) {
                         awaitingEod -= 1;
                         if (awaitingEod <= 0) {
                             const elapsed = Date.now() - start;
@@ -70,90 +68,22 @@ async function main() {
                         }
 
                     }
-                    //setImmediate(poll); //immediately check if there is a new packet
-                    console.log("timeout to read...");
-                    setTimeout(poll, 5);
+                    setImmediate(poll); //immediately check if there is a new packet
+                    //setTimeout(poll, );
                     return;
                 }
             }
         } catch (e) {
-            // Ignore empty queue
-            console.log("EMPTY!?!")
+            //this should never be reached!
+            console.log(e)
+            process.exit(1);
         }
-        console.log("timeout from no read...");
+        //console.log("timeout from no read...");
         setTimeout(poll, 5);
     };
 
     poll();
-    /*
-    const Module = await createMultiReaderModule(
-        {
-            noInitialRun: true,
-            onRuntimeInitialized() {
-                const mountPath = `/input`;
-                Module.FS.mkdir(mountPath);
-                Module.FS.mount(Module.FS.filesystems.NODEFS, { root: cwd }, mountPath);
-
-                //Initialize collect path strings
-                const mountedPaths = new Module.VectorString();
-
-                argFilePaths.forEach((filepath) => {
-                    const absoluteFilePath = path.resolve(cwd, filepath);
-                    if (!absoluteFilePath.startsWith(cwd)) {
-                        console.error(`Error: File must be inside current directory (${cwd})`);
-                        process.exit(1);
-                    }
-
-                    const relativePath = path.relative(cwd, absoluteFilePath);
-                    const wasmFilePath = `${mountPath}/${relativePath.replaceAll('\\', '/')}`;
-                    mountedPaths.push_back(wasmFilePath);
-                });
-
-                //create reader
-                const MultifileReader = Module.MultifileReader;
-                var awaitingEod = mountedPaths.size();
-
-                reader = new MultifileReader(mountedPaths);
-                //start
-                const start = Date.now();
-                reader.start();
-                const poll = () => {
-                    try {
-                        if (reader.getPendingPacketCount() > 0) {
-
-
-                            const packet = reader.consumePacket();
-                            if (packet) {
-
-                                if (packet === 'EOD') {
-                                    console.log(packet);
-                                    awaitingEod -= 1;
-                                    if (awaitingEod <= 0) {
-                                        const elapsed = Date.now() - start;
-                                        console.log(`${elapsed}ms`);
-                                        reader.stop();
-                                        process.exit(0);
-                                    }
-
-                                }
-                                setImmediate(poll); //immediately check if there is a new packet
-                                return;
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore empty queue
-                        console.log("EMPTY!?!")
-                    }
-                    setTimeout(poll, 5);
-                };
-
-                poll();
-            }
-        }
-    );
-    */
-
-
+    
     process.on('SIGINT', () => {
         if (reader) {
             reader.stop();

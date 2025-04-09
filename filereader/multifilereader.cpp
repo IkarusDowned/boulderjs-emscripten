@@ -103,13 +103,6 @@ int MultifileReader::getPendingPacketCount() const
 void MultifileReader::producePacket(std::string packet)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    /*
-    if (packet == "EOD")
-    {
-        std::cout << "Placing EOD" << std::endl;
-    }
-    */
-
     ++pendingPackets;
     packetsBuffer.push(std::move(packet));
     condition.notify_all();
@@ -118,13 +111,14 @@ void MultifileReader::producePacket(std::string packet)
 std::string MultifileReader::consumePacket()
 {
     std::unique_lock<std::mutex> lock(mutex);
-    condition.wait(lock, [this]() -> bool { /*return readOffset < packetsBuffer.size();*/
+    condition.wait(lock, [this]() -> bool { 
                                             return !packetsBuffer.empty();
     });
 
     std::string aPacket = std::move(packetsBuffer.front());
     packetsBuffer.pop();
     --pendingPackets;
-    
+    if(pendingPackets % 100 == 0)
+        std::cout << pendingPackets << std::endl;
     return aPacket;
 }
