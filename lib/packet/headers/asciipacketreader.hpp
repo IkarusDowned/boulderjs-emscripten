@@ -64,7 +64,6 @@ public:
         bytesRead = streamReader.readBytes(); // see if there is any new data in the buffer
         auto rawBytesIterator = streamReader.getByteBuffer().begin();
         packetBuffer.insert(packetBuffer.end(), rawBytesIterator, rawBytesIterator + bytesRead);
-
         return getPacketFromExistingBuffer(outPacket); // re-fetch to see if there is a new packet
     }
 };

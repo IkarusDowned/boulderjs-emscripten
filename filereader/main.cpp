@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
 #include <argparse/argparse.hpp>
 #include "headers/multifilereader.hpp"
 
@@ -21,8 +22,8 @@ int main(int argc, char *argv[])
     std::signal(SIGINT, handleSignal);
     const std::string FILEPATH_ROOT = "/var/input/";
     argparse::ArgumentParser program("multi_file_reader");
-    program.add_argument("--file")
-        .help("Path to input file. Appended to /var/input/")
+    program.add_argument("--files")
+        .help("Path to input files. Appended to /var/input/")
         .required();
     try
     {
@@ -34,11 +35,17 @@ int main(int argc, char *argv[])
         std::cout << program;
         return 1;
     }
-    std::string filename = program.get("--file");
-    std::string filepath = FILEPATH_ROOT + filename;
+    std::string filenames = program.get("--files");
     std::vector<std::string> filepaths;
+    std::istringstream stringStream(filenames);
+    std::string filepath;
+    while (std::getline(stringStream, filepath, ','))
+    {
+        filepaths.push_back(FILEPATH_ROOT + filepath);
+    }
 
-    filepaths.push_back(filepath);
+    int numThreads = filepaths.size();
+
     try
     {
         multiReader = std::make_unique<MultifileReader>(filepaths);
@@ -47,15 +54,21 @@ int main(int argc, char *argv[])
         while (multiReader->isRunning())
         {
             std::string packet = multiReader->consumePacket();
-            //std::cout << "Reading..." << packet << std::endl;
+            // std::cout << "Reading..." << packet << std::endl;
             if (packet == "EOD")
             {
-                //std::cout << "Finished!" << std::endl;
-                auto end = std::chrono::steady_clock::now();
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-                std::cout << duration << std::endl;
-                multiReader->stop();
-                return 0;
+                
+                --numThreads;
+                std::cout << "Got EOD. " << numThreads << "Remaining..." << std::endl;
+                if (numThreads <= 0)
+                {
+                    // std::cout << "Finished!" << std::endl;
+                    auto end = std::chrono::steady_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+                    std::cout << duration << std::endl;
+                    multiReader->stop();
+                    return 0;
+                }
             }
         }
     }

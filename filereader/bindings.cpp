@@ -13,5 +13,6 @@ EMSCRIPTEN_BINDINGS(multiReaderBindings) {
         .function("start", &MultifileReader::start)
         .function("stop", &MultifileReader::stop)
         .function("isRunning", &MultifileReader::isRunning)
-        .function("consumePacket", &MultifileReader::consumePacket);
+        .function("consumePacket", &MultifileReader::consumePacket)
+        .function("getPendingPacketCount", &MultifileReader::getPendingPacketCount);
 }

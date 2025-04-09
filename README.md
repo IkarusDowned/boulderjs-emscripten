@@ -6,7 +6,7 @@
 ### Build the Emscripten JS biding
 `docker pull emscripten/emsdk`
 then
-`docker run --rm -v $(pwd):/src -w /src emscripten/emsdk   em++ -v filereader/multifilereader.cpp filereader/bindings.cpp -o build/multifilereader.js -I filereader/headers -I lib -s EXPORTED_RUNTIME_METHODS=['FS','NODEFS'] -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 -s MODULARIZE=1 -s EXPORT_NAME="createMultiReaderModule" -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -std=c++20 -O3 -pthread --bind -lnodefs.js`
+`docker run --rm -v $(pwd):/src -w /src emscripten/emsdk   em++ -v filereader/multifilereader.cpp filereader/bindings.cpp -o build/multifilereader.js -I filereader/headers -I lib -s EXPORTED_RUNTIME_METHODS=['FS','NODEFS'] -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 -s MODULARIZE=1 -s EXPORT_NAME="createMultiReaderModule" -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s -std=c++20 -O3 -pthread --bind --no-entry -lnodefs.js`
 
 Note: on windows add `MSYS_NO_PATHCONV=1` before the docker command. so it looks like: `MSYS_NO_PATHCONV=1 docker run ...`
 
@@ -15,7 +15,7 @@ Note: on windows add `MSYS_NO_PATHCONV=1` before the docker command. so it looks
 `node ./js/util/fileWriter.js --file <filename>`
 
 ### Multi file Reader
-`docker run -v "$(pwd)<input folder>:/var/input" multifilereader --file <filename>`
+`docker run -v "$(pwd)<input folder>:/var/input" multifilereader --files <filename1>,<filename2>`
 
 **Note:** filename gets appended to /var/input/ . Same rules for running on windows as above
 

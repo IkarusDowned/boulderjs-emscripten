@@ -30,9 +30,13 @@ void ReaderThread::run()
                          {
             while (!isStopRequested)
             {
-                packetReader.readPacket(dataBuffer);
-                std::string packet(dataBuffer.begin(), dataBuffer.end());
-                readerManager.producePacket(packet);
+                int bytesRead = packetReader.readPacket(dataBuffer);
+                if(bytesRead > 0)
+                {
+                    std::string packet(dataBuffer.begin(), dataBuffer.end());
+                    readerManager.producePacket(packet);
+                }
+                
             } });
 }
 
@@ -47,7 +51,6 @@ void ReaderThread::join()
 void ReaderThread::requestStop()
 {
     isStopRequested = true;
-    
 }
 
 void MultifileReader::createThreads(const std::vector<std::string> &filePaths)
@@ -61,7 +64,6 @@ void MultifileReader::createThreads(const std::vector<std::string> &filePaths)
 
 MultifileReader::MultifileReader(const std::vector<std::string> &filePaths) : packetsBuffer(), running(true)
 {
-    readOffset = 0;
     createThreads(filePaths);
     std::vector<IThread *> rawThreads;
     for (const auto &thread : threads)
@@ -92,26 +94,37 @@ void MultifileReader::start()
     threadManager->start();
 }
 
+int MultifileReader::getPendingPacketCount() const
+{
+    return pendingPackets.load();
+}
+
+
 void MultifileReader::producePacket(std::string packet)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    packetsBuffer.push_back(packet);
+    /*
+    if (packet == "EOD")
+    {
+        std::cout << "Placing EOD" << std::endl;
+    }
+    */
+
+    ++pendingPackets;
+    packetsBuffer.push(std::move(packet));
     condition.notify_all();
 }
 
 std::string MultifileReader::consumePacket()
 {
     std::unique_lock<std::mutex> lock(mutex);
-    condition.wait(lock, [this]() -> bool
-                   { return readOffset < packetsBuffer.size(); });
+    condition.wait(lock, [this]() -> bool { /*return readOffset < packetsBuffer.size();*/
+                                            return !packetsBuffer.empty();
+    });
 
-    std::string aPacket = packetsBuffer[readOffset];
-    ++readOffset;
-    if (readOffset > 1024 && readOffset > packetsBuffer.size() / 2)
-    {
-        packetsBuffer.erase(packetsBuffer.begin(), packetsBuffer.begin() + readOffset);
-        readOffset = 0;
-    }
-
+    std::string aPacket = std::move(packetsBuffer.front());
+    packetsBuffer.pop();
+    --pendingPackets;
+    
     return aPacket;
 }
