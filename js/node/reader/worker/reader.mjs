@@ -2,7 +2,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import { dirname, resolve, basename } from 'path';
 import process from 'process';
-import { DelayVisualizer } from '../../visualizer/delayvisualizer.mjs';
+import { DelayVisualizer } from '../../../visualizer/delayvisualizer.mjs';
 
 // Emulate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);

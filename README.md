@@ -53,8 +53,13 @@ Ex: `test1.dat:P:3.14:1744558144450`
 **One-time step:** create a folder `build/`
 
 `docker pull emscripten/emsdk`
+on mac:
+`docker pull emscripten/emsdk:4.0.6-arm64`
+
 then
 `docker run --rm -v $(pwd):/src -w /src emscripten/emsdk em++ -v filereader/multifilespikereader.cpp filereader/bindings.cpp -o build/multifilespikereader.mjs -I filereader/headers -I lib -s "EXPORTED_RUNTIME_METHODS=['FS','NODEFS']" -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=6 -s MODULARIZE=1 -s EXPORT_NAME="createMultiReaderModule" -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -O3 -std=c++20 -pthread --bind --no-entry -lnodefs.js`
+
+on Mac with an ARM chip, use `emscripten/emsdk:4.0.6-arm64`
 
 Note: on windows add `MSYS_NO_PATHCONV=1` before the docker command. so it looks like: `MSYS_NO_PATHCONV=1 docker run ...`
 
@@ -72,6 +77,16 @@ Once you have built the Emscripten JS layer,
 `node js/emscripten/reader/reader.mjs --files <file1>,<file2>,<file3>,...,<fileN>`
 
 **Note:** if you are on windows on bash, you will need to add `MSYS_NO_PATHCONV=1` before running 
+
+## Helper scripts
+There are helper scripts to start the reader and writer.
+`runWriters.sh N`
+where N is a number starts 1-N processes outputing data in output/testN.dat . the `--seed` parameter is the value N
+
+`runEmscriptenReader.sh N`
+similarly, to run the emscripten based reader and use 1-N file streams, call the above
+
+For Node-based implementations, run `runNodeReader_worker.sh` for the worker based version or `runNodeReader_promise.sh` for the promise based on.
 
 ## Addendum
 - This code is provided as is. Please see the license for more details

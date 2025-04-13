@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 import fs from 'fs';
-import { Welford } from './welford.mjs';
+import { Welford } from '../algorithm/welford.mjs';
 
 const STX = '\x02';
 const ETX = '\x03';
