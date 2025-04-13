@@ -6,7 +6,16 @@ This specific use case is modeled on my work with creating high-frequency stock 
 This is an EXAMPLE, and not production ready, nor does it attempt to highlight every possible use case.
 
 The file writer simulates a high-frequency lossess packet stream.
-The reader takes in multiple file streams and processes spikes 
+The reader takes in multiple file streams and processes spikes in the main thread. Spikes are calculated using the classic Welford algorithm. 
+When a spike is recorded, it is passed to the main thread. Here, we updates a visualization class that renders the output of the delay every 50ms. 
+Each file has its own line, and the delay is shown in a line of '=', where each '=' indicates a 2ms delay.
+
+Example:
+<pre>Sun Apr 13 2025 09:29:06 GMT-0600 (Mountain Daylight Time) 
+[output/test1.dat]: = 
+[output/test2.dat]: = 
+[output/test3.dat]: ========= </pre>
+
 
 ### Packet Definition
 A packet is defined as a string of ASCII data which starts with character code STX and ends with ETX
