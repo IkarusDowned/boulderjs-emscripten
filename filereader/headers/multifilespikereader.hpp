@@ -30,10 +30,10 @@ class FileReaderThread : public IThread
 private:
     std::atomic<bool> isRunning;
     std::thread thread;
-    std::vector<FileStreamReader *> readers;
-    std::vector<AsciiPacketReader *> packetReaders;
+    std::vector<std::unique_ptr<FileStreamReader> > readers;
+    std::vector<std::unique_ptr<AsciiPacketReader> > packetReaders;
     std::vector<std::vector<char>> dataBuffers;
-    std::vector<PacketPipe*> packetPipes;
+    std::vector<std::unique_ptr<PacketPipe> > packetPipes;
     int initialize();
     
 public:

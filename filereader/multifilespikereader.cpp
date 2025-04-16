@@ -14,29 +14,19 @@ FileReaderThread::FileReaderThread(const std::vector<std::string> &filePaths) : 
 {
     for (auto &filePath : filePaths)
     {
-        FileStreamReader *reader = new FileStreamReader(filePath);
-        readers.push_back(reader);
-        AsciiPacketReader *packetReader = new AsciiPacketReader(*reader);
-        packetReaders.push_back(packetReader);
+        auto reader = std::make_unique<FileStreamReader>(filePath);
+        readers.push_back(std::move(reader));
+        auto packetReader = std::make_unique<AsciiPacketReader>(*(readers.back()));
+        packetReaders.push_back(std::move(packetReader));
         dataBuffers.push_back(std::vector<char>(MAX_PACKET_SIZE));
-        packetPipes.push_back(new PacketPipe());
+        auto pipe = std::make_unique<PacketPipe>();
+        packetPipes.push_back(std::move(pipe));
     }
 }
 
 FileReaderThread::~FileReaderThread()
 {
-    for (auto &reader : readers)
-    {
-        delete reader;
-    }
-    for (auto &reader : packetReaders)
-    {
-        delete reader;
-    }
-    for(auto &pipe : packetPipes)
-    {
-        delete pipe;
-    }
+    
 }
 
 int FileReaderThread::initialize()
